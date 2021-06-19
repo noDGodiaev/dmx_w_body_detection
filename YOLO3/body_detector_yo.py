@@ -10,9 +10,6 @@ from tensorflow.keras.layers import Add, Concatenate, Lambda
 from tensorflow.keras.layers import Conv2D, Input, LeakyReLU
 from tensorflow.keras.layers import MaxPool2D, UpSampling2D, ZeroPadding2D
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.losses import binary_crossentropy
-from tensorflow.keras.losses import sparse_categorical_crossentropy
-
 yolo_iou_threshold = 0.6  # Intersection Over Union (iou) threshold.
 yolo_score_threshold = 0.6  # Score threshold.
 

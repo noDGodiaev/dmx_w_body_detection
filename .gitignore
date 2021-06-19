@@ -1,0 +1,7 @@
+/.idea
+/__pycache__
+/YOLO4/stupidArtnet/__pycache__
+/YOLO4_opencv/yolov4-tiny.cfg
+/YOLO4_opencv/yolov4-tiny.weights
+/YOLO4_tf/yolov4-tiny.cfg
+/YOLO4_tf/yolov4-tiny.weights
