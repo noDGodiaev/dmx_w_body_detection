@@ -18,4 +18,8 @@ Dependencies:
 
     pip install -r requirements.txt
 
-
+Run 
+    
+    python3 detector.py "RTSP camera address" "broadcast artnet ip" lights-position frame-count
+  
+For middle DMX-light at -1 floor lights-position = 7
