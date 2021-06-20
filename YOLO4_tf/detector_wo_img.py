@@ -119,7 +119,7 @@ if __name__ == "__main__":
                 h = h * frame.shape[0]
                 x1y1 = (int(x - w / 2), int(y - h / 2))
                 x2y2 = (int(x + w / 2), int(y + h / 2))
-                center = (int(x1y1[0] + x2y2[0] / 2), int(x1y1[1] + x2y2[1] / 2))
+                center = (int((x1y1[0] + x2y2[0]) / 2), int((x1y1[1] + x2y2[1]) / 2))
                 xind, yind = findNearest_(xlist, ylist, center)
             try:
                 # send data on artnet
