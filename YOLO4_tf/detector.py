@@ -162,7 +162,7 @@ if __name__ == "__main__":
                 color = (255, 0, 0)
                 label = "%s : %f" % (class_names[classid], score)
                 cv2.rectangle(frame, x1y1, x2y2, color, 2)
-                center = (int(x1y1[0] + x2y2[0] / 2), int(x1y1[1] + x2y2[1] / 2))
+                center = (int((x1y1[0] + x2y2[0]) / 2), int((x1y1[1] + x2y2[1]) / 2))
                 x1y1, x2y2, xind, yind = findNearest_(xlist, ylist, center)
                 # Print  outputs for test
                 cv2.rectangle(frame, x1y1, x2y2, color, 2)
