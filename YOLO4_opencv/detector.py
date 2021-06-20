@@ -155,7 +155,7 @@ if __name__ == "__main__":
                 label = "%s : %f" % (class_names[classid[0]], score)
                 x1y1 = tuple((np.array([box[0], box[1]])).astype(np.int32))
                 x2y2 = tuple((np.array([box[2] + box[0], box[3] + box[1]])).astype(np.int32))
-                center = (int(x1y1[0] + x2y2[0] / 2), int(x1y1[1] + x2y2[1] / 2))
+                center = (int((x1y1[0] + x2y2[0]) / 2), int((x1y1[1] + x2y2[1]) / 2))
                 x1y1, x2y2, xind, yind = findNearest_(xlist, ylist, center)
                 color = (255, 0, 0)
                 # Print  outputs for test
