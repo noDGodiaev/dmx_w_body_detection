@@ -93,13 +93,13 @@ def findNearest_(xlist, ylist, center):
 if __name__ == "__main__":
     # RTSP address of camera
     # if 0 use first found device
-    rtsp_camera = sys.argv[1]
+    rtsp_camera = str(sys.argv[1])
     # Broadcast ip with Artnet controller inside
-    ip_artnet = sys.argv[2]
+    ip_artnet = str(sys.argv[2])
     # Number of light's position
-    horizontal_split = sys.argv[3]
+    horizontal_split = int(sys.argv[3])
     # Take each frame
-    frame_cut = sys.argv[4]
+    frame_cut = int(sys.argv[4])
 
     class_names = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck",
                    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
