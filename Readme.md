@@ -31,6 +31,8 @@
     python detector_wo_img.py rtsp://192.168.10.10/12 192.168.11.255 15 2
 ```
     
+Предварительно стоит проверить работоспособность нейронки, как таковой, для этого вызовите `yolo4_tests`
+
 ## Версия с OpenCV 
 
 [Source](https://gist.github.com/YashasSamaga/e2b19a6807a13046e399f4bc3cca3a49)
@@ -53,4 +55,4 @@ Run
     
     python3 detector.py RTSP_camera_address broadcast_artnet_ip lights-position frame-count
   
-For middle DMX-light at -1 floor lights-position = 7
+Для среднего фонаря на -1 этаже: lights-position = 7
