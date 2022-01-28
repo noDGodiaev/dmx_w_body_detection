@@ -117,8 +117,6 @@ if __name__ == "__main__":
         cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(rtsp_camera)
-    # cap = cv2.VideoCapture('rtsp://172.18.191.159:554/12')
-    # cap = cv2.VideoCapture('rtsp://admin:Supervisor@172.18.200.54:554/Streaming/Channels/1')
 
     # init artnet instance
     artnet = startStupidArtnet(ip_artnet)

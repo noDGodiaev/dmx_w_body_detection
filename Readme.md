@@ -10,6 +10,7 @@
 
 
 Конфиг [yolov4-tiny.cfg](https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4-tiny.cfg)
+
 Веса [yolov4-tiny.weights](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights)
 
 ### Алгоритм:
@@ -27,3 +28,26 @@
 python detector_wo_img.py 192.168.10.10 192.168.11.255 15 2
 ```
     
+## Версия с OpenCV 
+
+[Source](https://gist.github.com/YashasSamaga/e2b19a6807a13046e399f4bc3cca3a49)
+
+windows:
+
+    python3 -m venv /path/to/new/virtual_environment
+    virtual_environment\Scripts\activate.bat
+    
+Linux
+
+     python3 -m venv /path/to/new/virtual_environment
+     source virtual_environment/bin/activate
+       
+Зависимости:
+
+    pip install -r requirements.txt
+
+Run 
+    
+    python3 detector.py "RTSP camera address" "broadcast artnet ip" lights-position frame-count
+  
+For middle DMX-light at -1 floor lights-position = 7
