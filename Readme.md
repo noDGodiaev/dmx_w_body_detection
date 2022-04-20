@@ -9,7 +9,9 @@
 [Скачать архитектуру и веса](https://github.com/AlexeyAB/darknet) yolo_v4. В работе используется версия yolo4-tiny
 
 
+Конфиг [yolov4-tiny.cfg](https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4-tiny.cfg)
 
+Веса [yolov4-tiny.weights](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights)
 
 ### Алгоритм:
 - Устройство на котором размещена программа находится в одной сети с камерой и ArtNet контроллером
@@ -20,5 +22,37 @@
 - Для каждого классифицированного объекта определяется зона интереса - две точки, определяющие углы прямоугольника.
 - Протокол DMX предполагает передачу сигнала в дискретном наборе значений 0..255. Всё пространство сцены можно условно разделить на ячейки, которые будут однозначно определять положение фонаря. Например: от левой стены сцены до правой фонарь передвигается на 16 значений сигнала, в таком случае по горизонтальной оси будет 15 значений. 
 - Для зоны интереса вокруг человека определяется её центр и ячейка решетки, после чего сигнал о перемещении фонаря в эту ячейку передается контроллеру.
+
+- detector -- используется для визульной отладки, отрисовывает изображение, сетку и контур человека.
+- detector_wo_img -- не тратит ресурсы процессора на отрисовку изображения, по идее должна быть прибавка к скорости около 20%
+
+Пример запуска
+```commandline
+    python detector_wo_img.py rtsp://192.168.10.10/12 192.168.11.255 15 2
+```
     
+Предварительно стоит проверить работоспособность нейронки, как таковой, для этого вызовите `yolo4_tests`
+
+## Версия с OpenCV 
+
+[Source](https://gist.github.com/YashasSamaga/e2b19a6807a13046e399f4bc3cca3a49)
+
+windows:
+
+    python3 -m venv /path/to/new/virtual_environment
+    virtual_environment\Scripts\activate.bat
     
+Linux
+
+     python3 -m venv /path/to/new/virtual_environment
+     source virtual_environment/bin/activate
+       
+Зависимости:
+
+    pip install -r requirements.txt
+
+Run 
+    
+    python3 detector.py RTSP_camera_address broadcast_artnet_ip lights-position frame-count
+  
+Для среднего фонаря на -1 этаже: lights-position = 7

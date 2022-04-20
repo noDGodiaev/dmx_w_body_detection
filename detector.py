@@ -1,7 +1,8 @@
 import sys
-from yolov4.tf import YOLOv4
+
 import cv2
 import numpy as np
+import time
 from stupidArtnet.lib.StupidArtnet import StupidArtnet
 
 
@@ -30,10 +31,12 @@ def drawGrid(pic, n, m, line_color=(255, 255, 0), thickness=1, type_=cv2.LINE_AA
     xlist = []
     ylist = []
     while x <= pic.shape[1]:
+        cv2.line(pic, (x, 0), (x, pic.shape[0]), color=line_color, lineType=type_, thickness=thickness)
         xlist.append(x)
         x += pxstep
 
     while y <= pic.shape[0]:
+        cv2.line(pic, (0, y), (pic.shape[1], y), color=line_color, lineType=type_, thickness=thickness)
         ylist.append(y)
         y += pystep
     return xlist, ylist
@@ -53,19 +56,50 @@ def findNearest_(xlist, ylist, center):
     y1 = ylist[np.argmin(yminlist)]
     xindex = np.argmin(xminlist)
     yindex = np.argmin(yminlist)
-    return xindex, yindex
+    neigboursDiag = []
+    neigboursmin = []
+    if xindex > 0:
+        if yindex > 0:
+            neigboursDiag.append((xlist[xindex - 1], ylist[yindex - 1]))
+            neigboursmin.append((xminlist[xindex - 1], yminlist[yindex - 1]))
+        if yindex < len(yminlist) - 1:
+            neigboursDiag.append((xlist[xindex - 1], ylist[yindex + 1]))
+            neigboursmin.append((xminlist[xindex - 1], yminlist[yindex + 1]))
+    if xindex < len(xminlist) - 1:
+        if yindex > 0:
+            neigboursDiag.append((xlist[xindex + 1], ylist[yindex - 1]))
+            neigboursmin.append((xminlist[xindex + 1], yminlist[yindex - 1]))
+        if yindex < len(yminlist) - 1:
+            neigboursDiag.append((xlist[xindex + 1], ylist[yindex + 1]))
+            neigboursmin.append((xminlist[xindex + 1], yminlist[yindex + 1]))
+    neigboursDiag = np.array(neigboursDiag)
+    neigboursmin = np.array(neigboursmin)
+    minx = neigboursmin[0, 0]
+    miny = neigboursmin[0, 1]
+    minxind = 0
+    minyind = 0
+    for i in range(len(neigboursmin)):
+        if neigboursmin[i, 0] < minx:
+            minx = neigboursmin[i, 0]
+            minxind = i
+        if neigboursmin[i, 1] < miny:
+            miny = neigboursmin[i, 1]
+            minyind = i
+    x2 = neigboursDiag[minxind, 0]
+    y2 = neigboursDiag[minyind, 1]
+    return (x1, y1), (x2, y2), xindex, yindex
 
 
 if __name__ == "__main__":
     # RTSP address of camera
     # if 0 use first found device
-    rtsp_camera = sys.argv[1]
+    rtsp_camera = str(sys.argv[1])
     # Broadcast ip with Artnet controller inside
-    ip_artnet = sys.argv[2]
+    ip_artnet = str(sys.argv[2])
     # Number of light's position
-    horizontal_split = sys.argv[3]
+    horizontal_split = int(sys.argv[3])
     # Take each frame
-    frame_cut = sys.argv[4]
+    frame_cut = int(sys.argv[4])
 
     class_names = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck",
                    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -83,18 +117,18 @@ if __name__ == "__main__":
         cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(rtsp_camera)
-    # cap = cv2.VideoCapture('rtsp://172.18.191.159:554/12')
-    # cap = cv2.VideoCapture('rtsp://admin:Supervisor@172.18.200.54:554/Streaming/Channels/1')
 
     # init artnet instance
     artnet = startStupidArtnet(ip_artnet)
     # artnet = startStupidArtnet('172.18.200.255')
     # Read model weights and config
-    yolo = YOLOv4()
-    yolo.config.parse_names("coco.names")
-    yolo.config.parse_cfg("yolov4-tiny-tf.cfg")
-    yolo.make_model()
-    yolo.load_weights("yolov4-tiny.weights", weights_type="yolo")
+    net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
+    # Try use gpu+cuda, if possible
+    net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+    net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
+
+    model = cv2.dnn_DetectionModel(net)
+    model.setInputParams(size=(416, 416), scale=1 / 255, swapRB=True)
 
     framecount = 0
     while cv2.waitKey(1) < 1:
@@ -108,19 +142,25 @@ if __name__ == "__main__":
         framecount += 1
         # Take every 'frame_cut' frame
         if framecount % int(frame_cut) == 0:
-            results = yolo.predict(frame, 0.2)
-            for res in results:
-                x, y, w, h, classid, score = res
+            start = time.time()
+            classes, scores, boxes = model.detect(frame, 0.2, 0.4)
+            end = time.time()
+
+            start_drawing = time.time()
+            for (classid, score, box) in zip(classes, scores, boxes):
                 if class_names[int(classid)] not in white_list:
                     continue
-                x = x * frame.shape[1]
-                y = y * frame.shape[0]
-                w = w * frame.shape[1]
-                h = h * frame.shape[0]
-                x1y1 = (int(x - w / 2), int(y - h / 2))
-                x2y2 = (int(x + w / 2), int(y + h / 2))
+                label = "%s : %f" % (class_names[classid[0]], score)
+                x1y1 = tuple((np.array([box[0], box[1]])).astype(np.int32))
+                x2y2 = tuple((np.array([box[2] + box[0], box[3] + box[1]])).astype(np.int32))
                 center = (int((x1y1[0] + x2y2[0]) / 2), int((x1y1[1] + x2y2[1]) / 2))
-                xind, yind = findNearest_(xlist, ylist, center)
+                x1y1, x2y2, xind, yind = findNearest_(xlist, ylist, center)
+                color = (255, 0, 0)
+                # Print  outputs for test
+                cv2.rectangle(frame, x1y1, x2y2, color, 2)
+                cv2.rectangle(frame, box, color, 2)
+                cv2.putText(frame, label, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            end_drawing = time.time()
             try:
                 # send data on artnet
                 # configered for middle light at underground floor
@@ -130,6 +170,11 @@ if __name__ == "__main__":
                 artnet.show()
             except:
                 pass
+
+            fps_label = "FPS: %.2f (excluding drawing time of %.2fms)" % (
+                1 / (end - start), (end_drawing - start_drawing) * 1000)
+            cv2.putText(frame, fps_label, (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+            cv2.imshow("detections", frame)
     artnet.stop()
     cap.release()
     cv2.destroyAllWindows()

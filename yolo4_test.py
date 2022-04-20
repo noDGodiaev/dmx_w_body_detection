@@ -18,8 +18,12 @@ CONFIDENCE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
 COLORS = [(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
 
-# cap = cv2.VideoCapture(0)
+# ---------------- Change here the video source --------------------
+
+# cap = cv2.VideoCapture(0) # <- this for device camera
 cap = cv2.VideoCapture('rtsp://172.18.191.159:554/12')
+
+# ---------------- Change here the video source --------------------
 
 net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -43,7 +47,7 @@ if __name__ == "__main__":
             start_drawing = time.time()
             for (classid, score, box) in zip(classes, scores, boxes):
                 color = COLORS[int(classid) % len(COLORS)]
-                label = "%s : %f" % (class_names[classid[0]], score)
+                label = "%s : %f" % (class_names[classid], score)
                 cv2.rectangle(frame, box, color, 2)
                 cv2.putText(frame, label, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             end_drawing = time.time()

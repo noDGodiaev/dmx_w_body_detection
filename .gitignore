@@ -5,3 +5,5 @@
 /YOLO4_opencv/yolov4-tiny.weights
 /YOLO4_tf/yolov4-tiny.cfg
 /YOLO4_tf/yolov4-tiny.weights
+/Test_files/yolov4-tiny.cfg
+/Test_files/yolov4-tiny.weights
